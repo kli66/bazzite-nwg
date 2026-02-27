@@ -43,6 +43,21 @@ HOME=/etc/skel \
     XDG_DATA_HOME=/etc/skel/.local/share \
     nwg-shell-installer -w -s
 
+### Install Clash Verge Rev (latest release)
+# Dynamically resolve the download URL for the latest x86_64 RPM
+CLASH_VERGE_URL=$(curl -s https://api.github.com/repos/clash-verge-rev/clash-verge-rev/releases/latest \
+  | jq -r '.assets[] | select(.name | endswith(".x86_64.rpm")) | .browser_download_url')
+# Download and install
+curl -L -o /tmp/clash-verge-rev.rpm "$CLASH_VERGE_URL"
+dnf5 install -y /tmp/clash-verge-rev.rpm
+
+### Install Cursor (latest stable)
+# Download from Cursor API (follows redirects)
+curl -L -o /tmp/cursor.rpm https://api2.cursor.sh/updates/download/golden/linux-x64-rpm/cursor/latest
+dnf5 install -y /tmp/cursor.rpm
+
+### Cleanup downloaded RPM files
+rm -f /tmp/*.rpm
 
 #### Example for enabling a System Unit File
 
