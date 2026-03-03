@@ -59,6 +59,28 @@ dnf5 install -y /tmp/cursor.rpm
 ### Cleanup downloaded RPM files
 rm -f /tmp/*.rpm
 
+### Install Krohnkite (dynamic tiling KWin script) from git
+# Build dependencies
+dnf5 install -y npm git-core go-task
+
+# Clone, build the .kwinscript package, and install system-wide
+git clone https://codeberg.org/anametologin/Krohnkite.git /tmp/krohnkite-build
+pushd /tmp/krohnkite-build
+# npm needs a writable HOME for its cache; /root may not exist during image build
+# Use kwin-pkg (not package) to build the pkg/ directory without zipping into
+# a .kwinscript file — we install directly from pkg/ so the zip is unnecessary.
+HOME=/tmp go-task kwin-pkg
+# Install the built package contents to the system-wide KWin scripts directory
+# so it is available for all users out of the box.
+mkdir -p /usr/share/kwin/scripts/krohnkite
+cp -r pkg/* /usr/share/kwin/scripts/krohnkite/
+popd
+
+# Clean up Krohnkite build tree and build-only dependencies
+rm -rf /tmp/krohnkite-build
+dnf5 remove -y npm go-task
+dnf5 clean all
+
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
