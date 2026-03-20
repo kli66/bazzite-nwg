@@ -12,6 +12,9 @@ set -ouex pipefail
 # this installs a package from fedora repos
 dnf5 install -y tmux emacs ripgrep fd-find
 
+# Keep a full developer toolchain in the final image
+dnf5 group install -y "Development Tools"
+
 # Use a COPR Example:
 #
 # dnf5 -y copr enable ublue-os/staging
@@ -76,9 +79,50 @@ mkdir -p /usr/share/kwin/scripts/krohnkite
 cp -r pkg/* /usr/share/kwin/scripts/krohnkite/
 popd
 
-# Clean up Krohnkite build tree and build-only dependencies
-rm -rf /tmp/krohnkite-build
-dnf5 remove -y npm go-task
+### Install Kara (KDE Plasma 6 panel widget) from git for new users
+# Build dependencies (Fedora)
+dnf5 install -y \
+    cmake \
+    extra-cmake-modules \
+    gcc-c++ \
+    qt6-qtbase-devel \
+    qt6-qtdeclarative-devel \
+    kf6-ki18n-devel \
+    kf6-kservice-devel \
+    kf6-kwindowsystem-devel \
+    libplasma-devel \
+    plasma-activities-devel \
+    kwin-devel \
+    wayland-devel \
+    libepoxy-devel \
+    libdrm-devel \
+    plasma-workspace-devel \
+    kf6-kitemmodels-devel
+
+# Clone and run upstream installer. HOME is /etc/skel so new users inherit setup.
+git clone https://github.com/dhruv8sh/kara.git /tmp/kara-build
+pushd /tmp/kara-build
+HOME=/etc/skel bash ./install.sh
+popd
+
+# Clean up build trees and build-only dependencies
+rm -rf /tmp/krohnkite-build /tmp/kara-build
+dnf5 remove -y \
+    npm \
+    go-task \
+    qt6-qtbase-devel \
+    qt6-qtdeclarative-devel \
+    kf6-ki18n-devel \
+    kf6-kservice-devel \
+    kf6-kwindowsystem-devel \
+    libplasma-devel \
+    plasma-activities-devel \
+    kwin-devel \
+    wayland-devel \
+    libepoxy-devel \
+    libdrm-devel \
+    plasma-workspace-devel \
+    kf6-kitemmodels-devel
 dnf5 clean all
 
 #### Example for enabling a System Unit File
