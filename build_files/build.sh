@@ -12,8 +12,8 @@ set -ouex pipefail
 # this installs a package from fedora repos
 dnf5 install -y tmux emacs ripgrep fd-find
 
-# Keep a full developer toolchain in the final image
-dnf5 group install -y "Development Tools"
+# Keep a minimal developer toolchain in the final image
+dnf5 install -y gcc gcc-c++ make cmake pkgconf-pkg-config clang lld llvm clang-tools-extra
 
 # Use a COPR Example:
 #
@@ -36,6 +36,10 @@ dnf5 -y copr enable mochaa/gtk-session-lock
 # File manager, text editor, and web browser are intentionally omitted —
 # they are provided by the bazzite KDE environment.
 dnf5 install -y sway nwg-shell
+
+# Klassy (KDE theme) from OBS repo matching Fedora major version
+dnf5 config-manager addrepo --from-repofile="https://download.opensuse.org/repositories/home:paulmcauley/Fedora_${VERSION_ID}/home:paulmcauley.repo"
+dnf5 install -y klassy
 
 # Seed default nwg-shell + sway configs for new users via /etc/skel.
 # nwg-shell-installer has no -d flag; redirect its XDG/HOME env vars instead.
