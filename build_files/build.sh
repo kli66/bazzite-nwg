@@ -32,8 +32,6 @@ dnf5 install -y \
     buildah \
     skopeo \
     distrobox \
-    greetd \
-    tuigreet \
     gcc \
     gcc-c++ \
     make \
@@ -94,17 +92,4 @@ rm -f /tmp/*.rpm
 # Keep image cache clean.
 dnf5 clean all
 
-#### Example for enabling a System Unit File
-
-mkdir -p /etc/greetd
-cat >/etc/greetd/config.toml <<'EOF'
-[terminal]
-vt = 1
-
-[default_session]
-command = "tuigreet --time --cmd sway"
-user = "greeter"
-EOF
-
-systemctl enable greetd.service
 systemctl enable podman.socket
