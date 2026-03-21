@@ -9,11 +9,40 @@ set -ouex pipefail
 # List of rpmfusion packages can be found here:
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
 
-# this installs a package from fedora repos
-dnf5 install -y tmux emacs ripgrep fd-find
-
-# Keep a minimal developer toolchain in the final image
-dnf5 install -y gcc gcc-c++ make cmake pkgconf-pkg-config clang lld llvm clang-tools-extra
+# this installs packages from fedora repos
+dnf5 install -y \
+    tmux \
+    neovim \
+    ripgrep \
+    fd-find \
+    git-core \
+    just \
+    fzf \
+    jq \
+    yq \
+    bat \
+    bash-completion \
+    openssh-clients \
+    rsync \
+    unzip \
+    p7zip \
+    curl \
+    wget \
+    podman \
+    buildah \
+    skopeo \
+    distrobox \
+    greetd \
+    tuigreet \
+    gcc \
+    gcc-c++ \
+    make \
+    cmake \
+    pkgconf-pkg-config \
+    clang \
+    lld \
+    llvm \
+    clang-tools-extra
 
 # Use a COPR Example:
 #
@@ -36,10 +65,6 @@ dnf5 -y copr enable mochaa/gtk-session-lock
 # File manager, text editor, and web browser are intentionally omitted —
 # they are provided by the bazzite KDE environment.
 dnf5 install -y sway nwg-shell
-
-# Klassy (KDE theme) from OBS repo matching Fedora major version
-dnf5 config-manager addrepo --from-repofile="https://download.opensuse.org/repositories/home:paulmcauley/Fedora_${VERSION_ID}/home:paulmcauley.repo"
-dnf5 install -y klassy
 
 # Seed default nwg-shell + sway configs for new users via /etc/skel.
 # nwg-shell-installer has no -d flag; redirect its XDG/HOME env vars instead.
@@ -66,69 +91,20 @@ dnf5 install -y /tmp/cursor.rpm
 ### Cleanup downloaded RPM files
 rm -f /tmp/*.rpm
 
-### Install Krohnkite (dynamic tiling KWin script) from git
-# Build dependencies
-dnf5 install -y npm git-core go-task
-
-# Clone, build the .kwinscript package, and install system-wide
-git clone https://codeberg.org/anametologin/Krohnkite.git /tmp/krohnkite-build
-pushd /tmp/krohnkite-build
-# npm needs a writable HOME for its cache; /root may not exist during image build
-# Use kwin-pkg (not package) to build the pkg/ directory without zipping into
-# a .kwinscript file — we install directly from pkg/ so the zip is unnecessary.
-HOME=/tmp go-task kwin-pkg
-# Install the built package contents to the system-wide KWin scripts directory
-# so it is available for all users out of the box.
-mkdir -p /usr/share/kwin/scripts/krohnkite
-cp -r pkg/* /usr/share/kwin/scripts/krohnkite/
-popd
-
-### Install Kara (KDE Plasma 6 panel widget) from git for new users
-# Build dependencies (Fedora)
-dnf5 install -y \
-    cmake \
-    extra-cmake-modules \
-    gcc-c++ \
-    qt6-qtbase-devel \
-    qt6-qtdeclarative-devel \
-    kf6-ki18n-devel \
-    kf6-kservice-devel \
-    kf6-kwindowsystem-devel \
-    libplasma-devel \
-    plasma-activities-devel \
-    kwin-devel \
-    wayland-devel \
-    libepoxy-devel \
-    libdrm-devel \
-    plasma-workspace-devel \
-    kf6-kitemmodels-devel
-
-# Clone and run upstream installer. HOME is /etc/skel so new users inherit setup.
-git clone https://github.com/dhruv8sh/kara.git /tmp/kara-build
-pushd /tmp/kara-build
-HOME=/etc/skel bash ./install.sh
-popd
-
-# Clean up build trees and build-only dependencies
-rm -rf /tmp/krohnkite-build /tmp/kara-build
-dnf5 remove -y \
-    npm \
-    go-task \
-    qt6-qtbase-devel \
-    qt6-qtdeclarative-devel \
-    kf6-ki18n-devel \
-    kf6-kservice-devel \
-    kf6-kwindowsystem-devel \
-    libplasma-devel \
-    plasma-activities-devel \
-    kwin-devel \
-    wayland-devel \
-    libepoxy-devel \
-    libdrm-devel \
-    plasma-workspace-devel \
-    kf6-kitemmodels-devel
+# Keep image cache clean.
 dnf5 clean all
 
 #### Example for enabling a System Unit File
 
+mkdir -p /etc/greetd
+cat >/etc/greetd/config.toml <<'EOF'
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --cmd sway"
+user = "greeter"
+EOF
+
+systemctl enable greetd.service
 systemctl enable podman.socket
