@@ -55,14 +55,27 @@ source /etc/os-release
 
 # Enable required COPRs
 dnf5 -y copr enable tofik/sway
+dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable erikreider/SwayNotificationCenter
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
 # Enable Terra repository
 dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
-# Install sway and noctalia-shell
-dnf5 install -y sway noctalia-shell
+# Install sway stack and theme tooling
+dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
+
+# Remove terminal packages pulled in by sway weak dependencies
+foot_packages=()
+for pkg in foot foot-client foot-server; do
+    if rpm -q "$pkg" >/dev/null 2>&1; then
+        foot_packages+=("$pkg")
+    fi
+done
+
+if [ "${#foot_packages[@]}" -gt 0 ]; then
+    dnf5 remove -y "${foot_packages[@]}"
+fi
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM
