@@ -40,7 +40,10 @@ dnf5 install -y \
     clang \
     lld \
     llvm \
-    clang-tools-extra
+    clang-tools-extra \
+    pcmanfm \
+    greetd \
+    gtkgreet
 
 # Use a COPR Example:
 #
@@ -63,7 +66,7 @@ dnf5 -y copr enable tofik/nwg-shell
 dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
 # Install sway stack and theme tooling
-dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
+dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme ghostty
 
 # Remove terminal packages pulled in by sway weak dependencies
 foot_packages=()
@@ -76,6 +79,44 @@ done
 if [ "${#foot_packages[@]}" -gt 0 ]; then
     dnf5 remove -y "${foot_packages[@]}"
 fi
+
+ghostty_desktop=''
+for desktop in com.mitchellh.ghostty.desktop ghostty.desktop; do
+    if [ -f "/usr/share/applications/${desktop}" ]; then
+        ghostty_desktop="${desktop}"
+        break
+    fi
+done
+
+pcmanfm_desktop=''
+for desktop in pcmanfm.desktop pcmanfm-qt.desktop; do
+    if [ -f "/usr/share/applications/${desktop}" ]; then
+        pcmanfm_desktop="${desktop}"
+        break
+    fi
+done
+
+mkdir -p /etc/xdg
+cat > /etc/xdg/mimeapps.list <<EOF
+[Default Applications]
+inode/directory=${pcmanfm_desktop:-pcmanfm.desktop}
+x-scheme-handler/terminal=${ghostty_desktop:-com.mitchellh.ghostty.desktop}
+EOF
+
+# Configure greetd + gtkgreet for graphical login on boot
+mkdir -p /etc/greetd
+cat > /etc/greetd/config.toml <<'EOF'
+[terminal]
+vt = 1
+
+[default_session]
+command = "sway --config /etc/greetd/sway-greetd.conf"
+user = "greeter"
+EOF
+
+cat > /etc/greetd/sway-greetd.conf <<'EOF'
+exec "gtkgreet -l; swaymsg exit"
+EOF
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM
@@ -97,3 +138,4 @@ rm -f /tmp/*.rpm
 dnf5 clean all
 
 systemctl enable podman.socket
+systemctl enable greetd.service

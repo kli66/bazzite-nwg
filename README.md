@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [uCore](https://github.com/ublue-os/main) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
 
 ## Installation
 
@@ -10,7 +10,7 @@ From any running bootc system, switch to this image with:
 sudo bootc switch ghcr.io/<your-github-username>/bazzite-nwg:latest
 ```
 
-Then reboot. The KDE Plasma session from Bazzite remains available alongside Sway.
+Then reboot. The system starts at a gtkgreet login screen and you can select the Sway session.
 
 ## First Login
 
@@ -26,7 +26,7 @@ Open the Noctalia Shell settings from your application launcher to configure key
 
 | Keys | Action |
 |---|---|
-| `Super+Enter` | Open terminal (foot) |
+| `Super+Enter` | Open terminal (ghostty) |
 | `Super+D` | Open app launcher (nwg-drawer) |
 | `Super+Shift+Q` | Close focused window |
 | `Super+Shift+E` | Exit Sway |
