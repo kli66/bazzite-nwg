@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and [nwg-shell](https://nwg-piotr.github.io/nwg-shell/) added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
 
 ## Installation
 
@@ -16,19 +16,11 @@ Then reboot. The KDE Plasma session from Bazzite remains available alongside Swa
 
 Log out and select **Sway** from the display manager session list.
 
-- **New user accounts** — nwg-shell configs are pre-seeded from `/etc/skel` automatically; no further setup is needed.
-- **Existing user accounts** — run once to restore any missing config files without overwriting your existing ones:
-
-  ```bash
-  nwg-shell-installer -r
-  ```
+- Noctalia Shell is installed at build time and available at login.
 
 ## Initial Configuration
 
-Open the nwg-shell settings GUI to set your keyboard layout, default apps, and desktop style:
-
-- Press `Super+Enter` to open a terminal (foot), then run `nwg-shell-config`, or
-- Press `Super+D` to open the app launcher and search for **nwg-shell-config**.
+Open the Noctalia Shell settings from your application launcher to configure keyboard layout, default apps, and desktop style.
 
 ## Essential Key Bindings
 
@@ -191,9 +183,7 @@ This behavior may not be preferable depending on your setup. This can be mitigat
 
 ## Resources
 
-- [nwg-shell project](https://nwg-piotr.github.io/nwg-shell/)
-- [nwg-shell wiki](https://github.com/nwg-piotr/nwg-shell/wiki)
-- [nwg-shell-config settings GUI](https://nwg-piotr.github.io/nwg-shell/nwg-shell-config)
+- [Sway](https://github.com/swaywm/sway)
 - [Krohnkite](https://codeberg.org/anametologin/Krohnkite) - Dynamic tiling extension for KWin 6
 
 ---
