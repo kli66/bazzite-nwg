@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [uCore](https://github.com/ublue-os/main) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Universal Blue base-main](https://github.com/ublue-os/main) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
 
 ## Installation
 

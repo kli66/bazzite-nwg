@@ -139,3 +139,4 @@ dnf5 clean all
 
 systemctl enable podman.socket
 systemctl enable greetd.service
+systemctl set-default graphical.target
