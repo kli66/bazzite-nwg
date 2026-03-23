@@ -41,9 +41,7 @@ dnf5 install -y \
     lld \
     llvm \
     clang-tools-extra \
-    pcmanfm \
-    greetd \
-    gtkgreet
+    pcmanfm
 
 # Use a COPR Example:
 #
@@ -64,6 +62,9 @@ dnf5 -y copr enable tofik/nwg-shell
 
 # Enable Terra repository
 dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+
+# Install display manager after Terra is enabled
+dnf5 install -y sddm
 
 # Install sway stack and theme tooling
 dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme ghostty
@@ -103,21 +104,6 @@ inode/directory=${pcmanfm_desktop:-pcmanfm.desktop}
 x-scheme-handler/terminal=${ghostty_desktop:-com.mitchellh.ghostty.desktop}
 EOF
 
-# Configure greetd + gtkgreet for graphical login on boot
-mkdir -p /etc/greetd
-cat > /etc/greetd/config.toml <<'EOF'
-[terminal]
-vt = 1
-
-[default_session]
-command = "sway --config /etc/greetd/sway-greetd.conf"
-user = "greetd"
-EOF
-
-cat > /etc/greetd/sway-greetd.conf <<'EOF'
-exec "env XDG_RUNTIME_DIR=/run/greetd dbus-run-session -- gtkgreet -l; swaymsg exit"
-EOF
-
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM
 CLASH_VERGE_URL=$(curl -s https://api.github.com/repos/clash-verge-rev/clash-verge-rev/releases/latest \
@@ -138,5 +124,5 @@ rm -f /tmp/*.rpm
 dnf5 clean all
 
 systemctl enable podman.socket
-systemctl enable greetd.service
+systemctl enable sddm.service
 systemctl set-default graphical.target

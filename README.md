@@ -10,7 +10,7 @@ From any running bootc system, switch to this image with:
 sudo bootc switch ghcr.io/<your-github-username>/bazzite-nwg:latest
 ```
 
-Then reboot. The system starts at a gtkgreet login screen and you can select the Sway session.
+Then reboot. The system starts at an SDDM login screen and you can select the Sway session.
 
 ## First Login
 
