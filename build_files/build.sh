@@ -62,6 +62,9 @@ dnf5 -y copr enable tofik/nwg-shell
 # Enable Terra repository
 dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
+# Install packages from Terra repository
+dnf5 install -y ghostty 
+
 # Install sway stack and theme tooling
 dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
 
