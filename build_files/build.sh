@@ -111,11 +111,11 @@ vt = 1
 
 [default_session]
 command = "sway --config /etc/greetd/sway-greetd.conf"
-user = "greeter"
+user = "greetd"
 EOF
 
 cat > /etc/greetd/sway-greetd.conf <<'EOF'
-exec "gtkgreet -l; swaymsg exit"
+exec "env XDG_RUNTIME_DIR=/run/greetd dbus-run-session -- gtkgreet -l; swaymsg exit"
 EOF
 
 # Install Clash Verge Rev (latest release)
