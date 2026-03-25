@@ -49,14 +49,13 @@ dnf5 install -y \
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
-### Sway + noctalia-shell install
+### Hyprland + noctalia-shell install
 # Detect Fedora version for COPR repo targeting
 source /etc/os-release
 
 # Enable required COPRs
-dnf5 -y copr enable tofik/sway
 dnf5 -y copr enable tofik/nwg-shell
-# dnf5 -y copr enable solopasha/hyprland
+dnf5 -y copr enable solopasha/hyprland
 # dnf5 -y copr enable erikreider/SwayNotificationCenter
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
@@ -66,13 +65,10 @@ dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/te
 # Install packages from Terra repository
 dnf5 install -y ghostty wdisplays
 
-# Install Hyprland before noctalia-shell
-# dnf5 install -y hyprland
+# Install Hyprland stack and theme tooling
+dnf5 install -y hyprland noctalia-shell nwg-look adw-gtk3-theme
 
-# Install sway stack and theme tooling
-dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
-
-# Remove terminal packages pulled in by sway weak dependencies
+# Remove terminal packages pulled in by weak dependencies
 foot_packages=()
 for pkg in foot foot-client foot-server; do
     if rpm -q "$pkg" >/dev/null 2>&1; then
