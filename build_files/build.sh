@@ -66,7 +66,7 @@ dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/te
 dnf5 install -y ghostty wdisplays
 
 # Install Hyprland stack and theme tooling
-dnf5 install -y hyprland noctalia-shell nwg-look adw-gtk3-theme
+dnf5 install -y hyprland hyprland-qtutils noctalia-shell nwg-look adw-gtk3-theme
 
 # Remove terminal packages pulled in by weak dependencies
 foot_packages=()
