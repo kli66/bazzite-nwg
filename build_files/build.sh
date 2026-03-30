@@ -41,7 +41,38 @@ dnf5 install -y \
     lld \
     llvm \
     clang-tools-extra \
-    pcmanfm
+    pcmanfm \
+    nix
+
+# Keep Nix store writable on immutable systems.
+mkdir -p /var/nix
+
+if [ -L /nix ]; then
+    :
+elif [ -d /nix ]; then
+    cp -a /nix/. /var/nix/
+    rm -rf /nix
+    ln -s /var/nix /nix
+elif [ -e /nix ]; then
+    rm -f /nix
+    ln -s /var/nix /nix
+else
+    ln -s /var/nix /nix
+fi
+
+mkdir -p /etc/nix /etc/nixpkgs
+
+cat > /etc/nix/nix.conf <<EOF
+experimental-features = nix-command flakes
+auto-optimise-store = true
+max-jobs = auto
+EOF
+
+cat > /etc/nixpkgs/config.nix <<EOF
+{
+  allowUnfree = true;
+}
+EOF
 
 # Use a COPR Example:
 #
@@ -125,4 +156,5 @@ dnf5 clean all
 
 systemctl enable podman.socket
 systemctl enable sddm.service
+systemctl enable nix-daemon.socket
 systemctl set-default graphical.target
