@@ -49,12 +49,11 @@ dnf5 install -y \
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
-### Sway + noctalia-shell install
+### Niri + noctalia-shell install
 # Detect Fedora version for COPR repo targeting
 source /etc/os-release
 
 # Enable required COPRs
-dnf5 -y copr enable tofik/sway
 dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable solopasha/hyprland
 # dnf5 -y copr enable erikreider/SwayNotificationCenter
@@ -69,20 +68,8 @@ dnf5 install -y ghostty wdisplays
 # Install Hyprland before noctalia-shell
 # dnf5 install -y hyprland
 
-# Install sway stack and theme tooling
-dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
-
-# Remove terminal packages pulled in by sway weak dependencies
-foot_packages=()
-for pkg in foot foot-client foot-server; do
-    if rpm -q "$pkg" >/dev/null 2>&1; then
-        foot_packages+=("$pkg")
-    fi
-done
-
-if [ "${#foot_packages[@]}" -gt 0 ]; then
-    dnf5 remove -y "${foot_packages[@]}"
-fi
+# Install niri stack and theme tooling
+dnf5 install -y niri noctalia-shell nwg-look adw-gtk3-theme
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM

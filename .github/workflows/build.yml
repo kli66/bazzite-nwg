@@ -8,8 +8,7 @@ on:
     - cron: '05 10 * * *'  # 10:05am UTC everyday
   push:
     branches:
-      - main
-      - ucore-alt
+      - '**'
     paths-ignore:
       - '**/README.md'
   workflow_dispatch:
