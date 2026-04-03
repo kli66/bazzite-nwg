@@ -60,7 +60,7 @@ dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
 # Enable Terra repository
-dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+dnf5 install -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
 
 # Install packages from Terra repository
 dnf5 install -y ghostty wdisplays
