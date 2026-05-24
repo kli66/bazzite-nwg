@@ -48,7 +48,8 @@ dnf5 install -y \
     fcitx5-gtk \
     fcitx5-qt \
     fcitx5-qt6 \
-    librime-lua
+    librime-lua \
+    wdisplays
 
 # Use a COPR Example:
 #
@@ -67,11 +68,12 @@ dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable erikreider/SwayNotificationCenter
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
-# Enable Terra repository
-dnf5 install -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+# Enable Ghostty COPR repository for this Fedora release
+curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedora-${VERSION_ID}/scottames-ghostty-fedora-${VERSION_ID}.repo" \
+    | tee /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo > /dev/null
 
-# Install packages from Terra repository
-dnf5 install -y ghostty wdisplays
+# Install Ghostty from COPR
+dnf5 install -y ghostty
 
 # Install Hyprland before noctalia-shell
 # dnf5 install -y hyprland
