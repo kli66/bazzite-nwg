@@ -40,7 +40,16 @@ dnf5 install -y \
     clang \
     lld \
     llvm \
-    clang-tools-extra
+    clang-tools-extra \
+    fcitx5 \
+    fcitx5-autostart \
+    fcitx5-rime \
+    fcitx5-configtool \
+    fcitx5-gtk \
+    fcitx5-qt \
+    fcitx5-qt6 \
+    librime-lua \
+    wdisplays
 
 # Use a COPR Example:
 #
@@ -49,40 +58,44 @@ dnf5 install -y \
 # Disable COPRs so they don't end up enabled on the final image:
 # dnf5 -y copr disable ublue-os/staging
 
-### Sway + noctalia-shell install
+### Niri + noctalia-shell install
 # Detect Fedora version for COPR repo targeting
 source /etc/os-release
 
 # Enable required COPRs
-dnf5 -y copr enable tofik/sway
 dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable solopasha/hyprland
 # dnf5 -y copr enable erikreider/SwayNotificationCenter
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
-# Enable Terra repository
-dnf5 install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+# Enable Ghostty COPR repository for this Fedora release
+curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedora-${VERSION_ID}/scottames-ghostty-fedora-${VERSION_ID}.repo" \
+    | tee /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo > /dev/null
 
-# Install packages from Terra repository
-dnf5 install -y ghostty wdisplays
+# Install Ghostty from COPR
+dnf5 install -y ghostty
+
+# Install Terra repository configuration for packages required by the Niri/Noctalia stack
+dnf5 install -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+
+# The Terra repo files are present on Bazzite, but not enabled in CI by default.
+sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/terra*.repo
+
+# Emit CI diagnostics so repo visibility issues are obvious in build logs.
+rpm -q terra-release
+rpm -ql terra-release | grep '\.repo' || true
+ls -l /etc/yum.repos.d
+dnf5 repolist --enabled
+dnf5 repoquery --available noctalia-shell --refresh || true
 
 # Install Hyprland before noctalia-shell
 # dnf5 install -y hyprland
 
-# Install sway stack and theme tooling
-dnf5 install -y sway noctalia-shell nwg-look adw-gtk3-theme
+# Install niri stack and theme tooling
+dnf5 install -y niri noctalia-shell nwg-look adw-gtk3-theme
 
-# Remove terminal packages pulled in by sway weak dependencies
-foot_packages=()
-for pkg in foot foot-client foot-server; do
-    if rpm -q "$pkg" >/dev/null 2>&1; then
-        foot_packages+=("$pkg")
-    fi
-done
-
-if [ "${#foot_packages[@]}" -gt 0 ]; then
-    dnf5 remove -y "${foot_packages[@]}"
-fi
+# Disable Terra again so it does not remain enabled in the final image.
+sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/terra*.repo
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM

@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [Sway](https://github.com/swaywm/sway) Wayland compositor and Noctalia Shell added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [niri](https://github.com/niri-wm/niri) Wayland compositor and Noctalia Shell added on top.
 
 ## Installation
 
@@ -10,17 +10,23 @@ From any running bootc system, switch to this image with:
 sudo bootc switch ghcr.io/<your-github-username>/bazzite-nwg:latest
 ```
 
-Then reboot. The KDE Plasma session from Bazzite remains available alongside Sway.
+Then reboot. The KDE Plasma session from Bazzite remains available alongside Niri.
 
 ## First Login
 
-Log out and select **Sway** from the display manager session list.
+Log out and select **Niri** from the display manager session list.
 
 - Noctalia Shell is installed at build time and available at login.
 
 ## Initial Configuration
 
 Open the Noctalia Shell settings from your application launcher to configure keyboard layout, default apps, and desktop style.
+
+## Input Method
+
+Fcitx5 with the Rime engine is layered into the image.
+
+If you want to use `rime-ice`, install it in user space under `~/.local/share/fcitx5/rime`, then open `fcitx5-configtool`, add `Rime` as an active input method, keep `keyboard-us` as fallback, and restart or redeploy Rime from the Fcitx tray menu.
 
 ## Essential Key Bindings
 
@@ -29,8 +35,7 @@ Open the Noctalia Shell settings from your application launcher to configure key
 | `Super+Enter` | Open terminal (foot) |
 | `Super+D` | Open app launcher (nwg-drawer) |
 | `Super+Shift+Q` | Close focused window |
-| `Super+Shift+E` | Exit Sway |
-| `Super+Shift+R` | Reload Sway config |
+| `Super+Shift+E` | Exit Niri |
 
 ## Krohnkite (Dynamic Tiling for KDE)
 
@@ -183,7 +188,7 @@ This behavior may not be preferable depending on your setup. This can be mitigat
 
 ## Resources
 
-- [Sway](https://github.com/swaywm/sway)
+- [niri](https://github.com/niri-wm/niri)
 - [Krohnkite](https://codeberg.org/anametologin/Krohnkite) - Dynamic tiling extension for KWin 6
 
 ---
