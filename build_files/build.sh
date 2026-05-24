@@ -75,8 +75,11 @@ curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedor
 # Install Ghostty from COPR
 dnf5 install -y ghostty
 
-# Refresh Terra repository configuration for packages required by the Niri/Noctalia stack
-dnf5 reinstall -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+# Install Terra repository configuration for packages required by the Niri/Noctalia stack
+dnf5 install -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+
+# The Terra repo files are present on Bazzite, but not enabled in CI by default.
+sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/terra*.repo
 
 # Emit CI diagnostics so repo visibility issues are obvious in build logs.
 rpm -q terra-release
@@ -90,6 +93,9 @@ dnf5 repoquery --available noctalia-shell --refresh || true
 
 # Install niri stack and theme tooling
 dnf5 install -y niri noctalia-shell nwg-look adw-gtk3-theme
+
+# Disable Terra again so it does not remain enabled in the final image.
+sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/terra*.repo
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM
