@@ -75,8 +75,15 @@ curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedor
 # Install Ghostty from COPR
 dnf5 install -y ghostty
 
-# Enable Terra repository for packages required by the Niri/Noctalia stack
-dnf5 install -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+# Refresh Terra repository configuration for packages required by the Niri/Noctalia stack
+dnf5 reinstall -y --nogpgcheck --repofrompath 'terra-bootstrap,https://repos.fyralabs.com/terra$releasever' --repo terra-bootstrap terra-release
+
+# Emit CI diagnostics so repo visibility issues are obvious in build logs.
+rpm -q terra-release
+rpm -ql terra-release | grep '\.repo' || true
+ls -l /etc/yum.repos.d
+dnf5 repolist --enabled
+dnf5 repoquery --available noctalia-shell --refresh || true
 
 # Install Hyprland before noctalia-shell
 # dnf5 install -y hyprland
