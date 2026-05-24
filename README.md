@@ -22,6 +22,19 @@ Log out and select **Niri** from the display manager session list.
 
 Open the Noctalia Shell settings from your application launcher to configure keyboard layout, default apps, and desktop style.
 
+## Input Method
+
+Fcitx5 with the Rime engine is layered into the image, along with a bundled `rime-ice` schema set.
+
+For a new user account, the default `rime-ice` files are preseeded into `~/.local/share/fcitx5/rime`.
+For an existing account, run:
+
+```bash
+install-rime-ice "$HOME"
+```
+
+Then open `fcitx5-configtool`, add `Rime` as an active input method, keep `keyboard-us` as fallback, and restart or redeploy Rime from the Fcitx tray menu.
+
 ## Essential Key Bindings
 
 | Keys | Action |

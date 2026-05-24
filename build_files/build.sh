@@ -40,7 +40,15 @@ dnf5 install -y \
     clang \
     lld \
     llvm \
-    clang-tools-extra
+    clang-tools-extra \
+    fcitx5 \
+    fcitx5-autostart \
+    fcitx5-rime \
+    fcitx5-configtool \
+    fcitx5-gtk \
+    fcitx5-qt \
+    fcitx5-qt6 \
+    librime-lua
 
 # Use a COPR Example:
 #
@@ -83,6 +91,13 @@ dnf5 install -y /tmp/clash-verge-rev.rpm
 ## Download from Cursor API (follows redirects)
 curl -L -o /tmp/cursor.rpm https://api2.cursor.sh/updates/download/golden/linux-x64-rpm/cursor/latest
 dnf5 install -y /tmp/cursor.rpm
+
+# Stage rime-ice defaults in the image and preseed them for new users.
+install -d /usr/share/bazzite-nwg
+git clone --depth 1 https://github.com/iDvel/rime-ice.git /usr/share/bazzite-nwg/rime-ice
+rm -rf /usr/share/bazzite-nwg/rime-ice/.git
+install -Dm755 /ctx/install-rime-ice.sh /usr/local/bin/install-rime-ice
+/usr/local/bin/install-rime-ice /etc/skel
 
 # Cleanup downloaded RPM files
 rm -f /tmp/*.rpm
