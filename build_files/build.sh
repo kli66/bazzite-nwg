@@ -42,7 +42,6 @@ dnf5 install -y \
     llvm \
     clang-tools-extra \
     fcitx5 \
-    fcitx5-autostart \
     fcitx5-rime \
     fcitx5-chinese-addons \
     fcitx5-configtool \
