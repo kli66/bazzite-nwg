@@ -110,13 +110,6 @@ dnf5 install -y /tmp/clash-verge-rev.rpm
 curl -L -o /tmp/cursor.rpm https://api2.cursor.sh/updates/download/golden/linux-x64-rpm/cursor/latest
 dnf5 install -y /tmp/cursor.rpm
 
-# Stage rime-ice defaults in the image and preseed them for new users.
-install -d /usr/share/bazzite-nwg
-git clone --depth 1 https://github.com/iDvel/rime-ice.git /usr/share/bazzite-nwg/rime-ice
-rm -rf /usr/share/bazzite-nwg/rime-ice/.git
-install -Dm755 /ctx/install-rime-ice.sh /usr/local/bin/install-rime-ice
-/usr/local/bin/install-rime-ice /etc/skel
-
 # Cleanup downloaded RPM files
 rm -f /tmp/*.rpm
 
