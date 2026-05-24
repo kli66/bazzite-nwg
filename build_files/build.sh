@@ -44,6 +44,7 @@ dnf5 install -y \
     fcitx5 \
     fcitx5-autostart \
     fcitx5-rime \
+    fcitx5-chinese-addons \
     fcitx5-configtool \
     fcitx5-gtk \
     fcitx5-qt \
@@ -112,33 +113,6 @@ dnf5 install -y /tmp/cursor.rpm
 
 # Cleanup downloaded RPM files
 rm -f /tmp/*.rpm
-
-# Install Fcitx5 input method framework with Rime backend
-dnf5 install -y \
-    fcitx5 \
-    fcitx5-rime \
-    fcitx5-chinese-addons \
-    fcitx5-configtool \
-    fcitx5-gtk \
-    fcitx5-qt \
-    fcitx5-autostart \
-    librime-lua
-
-# Install rime-ice (雾凇拼音) configuration to system-wide Rime data directory
-# This provides a complete, well-maintained Simplified Chinese Pinyin setup
-# Users can override with personal config in ~/.local/share/fcitx5/rime/
-git clone --depth 1 https://github.com/iDvel/rime-ice.git /tmp/rime-ice
-cp -r /tmp/rime-ice/. /usr/share/rime-data/
-rm -rf /tmp/rime-ice
-
-# Configure Fcitx5 as the system input method for Wayland
-cat >> /etc/environment << 'EOF'
-
-# Fcitx5 input method
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-EOF
 
 # Keep image cache clean.
 dnf5 clean all
