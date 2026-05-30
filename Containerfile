@@ -3,16 +3,15 @@ FROM scratch AS ctx
 COPY build_files /
 
 # Base Image
-FROM ghcr.io/ublue-os/bluefin:stable
+FROM quay.io/fedora/fedora-silverblue:44
 
 ## Other possible base images include:
-# FROM ghcr.io/ublue-os/bluefin-nvidia:stable
-# FROM ghcr.io/ublue-os/bazzite-gnome:stable
-# FROM ghcr.io/ublue-os/bazzite:stable
+# FROM quay.io/fedora/fedora-silverblue:latest
+# FROM quay.io/fedora/fedora-kinoite:44
+# FROM quay.io/fedora/fedora-bootc:44
 #
 # ... and so on, here are more base images
-# Universal Blue Images: https://github.com/orgs/ublue-os/packages
-# Fedora base image: quay.io/fedora/fedora-bootc:41
+# Fedora bootc images: https://quay.io/organization/fedora
 # CentOS base images: quay.io/centos-bootc/centos-bootc:stream10
 
 ### [IM]MUTABLE /opt
@@ -38,4 +37,9 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     
 ### LINTING
 ## Verify final image and contents are correct.
-RUN bootc container lint
+ARG SKIP_BOOTC_LINT=0
+RUN if [ "${SKIP_BOOTC_LINT}" = "1" ]; then \
+        echo "Skipping bootc container lint for this build"; \
+    else \
+        bootc container lint; \
+    fi

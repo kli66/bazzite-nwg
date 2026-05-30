@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Bazzite](https://github.com/ublue-os/bazzite) (stable) with the [niri](https://github.com/niri-wm/niri) Wayland compositor and Noctalia Shell added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on official Fedora Silverblue 44 with the [niri](https://github.com/niri-wm/niri) Wayland compositor, Noctalia Shell, development tools, RPM Fusion, and daily-driver media codecs layered on top.
 
 ## Installation
 
@@ -10,7 +10,7 @@ From any running bootc system, switch to this image with:
 sudo bootc switch ghcr.io/<your-github-username>/bazzite-nwg:latest
 ```
 
-Then reboot. The KDE Plasma session from Bazzite remains available alongside Niri.
+Then reboot. The GNOME desktop from Fedora Silverblue remains available alongside Niri.
 
 ## First Login
 
@@ -195,14 +195,11 @@ This behavior may not be preferable depending on your setup. This can be mitigat
 
 # image-template
 
-This repository is meant to be a template for building your own custom [bootc](https://github.com/bootc-dev/bootc) image. This template is the recommended way to make customizations to any image published by the Universal Blue Project.
+This repository builds a custom Fedora Silverblue [bootc](https://github.com/bootc-dev/bootc) image with the project-specific desktop and developer customizations in `build_files/build.sh`.
 
 # Community
 
-If you have questions about this template after following the instructions, try the following spaces:
-- [Universal Blue Forums](https://universal-blue.discourse.group/)
-- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp)
-- [bootc discussion forums](https://github.com/bootc-dev/bootc/discussions) - This is not an Universal Blue managed space, but is an excellent resource if you run into issues with building bootc images.
+If you have questions about bootc image builds after following the instructions, try the [bootc discussion forums](https://github.com/bootc-dev/bootc/discussions).
 
 # How to Use
 
@@ -215,7 +212,7 @@ If you prefer instructions in video form, TesterTech created an excellent tutori
 
 These steps assume you have the following:
 - A Github Account
-- A machine running a bootc image (e.g. Bazzite, Bluefin, Aurora, or Fedora Atomic)
+- A machine running a bootc image, such as Fedora Silverblue, Fedora Atomic, or another bootc-based system
 - Experience installing and using CLI programs
 
 ## Step 1: Preparing the Template
@@ -238,7 +235,7 @@ Once you have the repository on your local drive, proceed to the next step.
 
 ### Step 2a: Creating a Cosign Key
 
-Container signing is important for end-user security and is enabled on all Universal Blue images. By default the image builds *will fail* if you don't.
+Container signing is important for end-user security. By default the image builds *will fail* if you do not configure signing.
 
 First, install the [cosign CLI tool](https://edu.chainguard.dev/open-source/sigstore/cosign/how-to-install-cosign/#installing-cosign-with-the-cosign-binary)
 With the cosign tool installed, run inside your repo folder:
@@ -274,20 +271,13 @@ gh secret set SIGNING_SECRET < cosign.key
 
 ### Step 2b: Choosing Your Base Image
 
-To choose a base image, simply modify the line in the container file starting with `FROM`. This will be the image your image derives from, and is your starting point for modifications.
-For a base image, you can choose any of the Universal Blue images or start from a Fedora Atomic system. Below this paragraph is a dropdown with a non-exhaustive list of potential base images.
+To choose a base image, modify the line in the container file starting with `FROM`. This image currently derives from official Fedora Silverblue 44:
 
-<details>
-    <summary>Base Images</summary>
+```text
+quay.io/fedora/fedora-silverblue:44
+```
 
-- Bazzite: `ghcr.io/ublue-os/bazzite:stable`
-- Aurora: `ghcr.io/ublue-os/aurora:stable`
-- Bluefin: `ghcr.io/ublue-os/bluefin:stable`
-- Universal Blue Base: `ghcr.io/ublue-os/base-main:latest`
-- Fedora: `quay.io/fedora/fedora-bootc:42`
-
-You can find more Universal Blue images on the [packages page](https://github.com/orgs/ublue-os/packages).
-</details>
+Other Fedora bootc base images are published under the Fedora organization on Quay.
 
 If you don't know which image to pick, choosing the one your system is currently on is the best bet for a smooth transition. To find out what image your system currently uses, run the following command:
 ```bash
@@ -339,7 +329,7 @@ This template provides a way to upload the disk images that is generated from th
 
 The [build-disk.yml](./.github/workflows/build-disk.yml) Github Actions workflow creates a disk image from your OCI image by utilizing the [bootc-image-builder](https://osbuild.org/docs/bootc/). In order to use this workflow you must complete the following steps:
 
-1. Modify `disk_config/iso.toml` to point to your custom container image before generating an ISO image.
+1. Modify `disk_config/iso-gnome.toml` to point to your custom container image before generating an ISO image.
 2. If you changed your image name from the default in `build.yml` then in the `build-disk.yml` file edit the `IMAGE_REGISTRY`, `IMAGE_NAME` and `DEFAULT_TAG` environment variables with the correct values. If you did not make changes, skip this step.
 3. Finally, if you want to upload your disk images to S3 then you will need to add your S3 configuration to the repository's Action secrets. This can be found by going to your repository settings, under `Secrets and Variables` -> `Actions`. You will need to add the following
   - `S3_PROVIDER` - Must match one of the values from the [supported list](https://rclone.org/s3/)
@@ -364,7 +354,7 @@ This template comes with the necessary tooling to index your image on [artifacth
 # Justfile Documentation
 
 The `Justfile` contains various commands and configurations for building and managing container images and virtual machine images using Podman and other utilities.
-To use it, you must have installed [just](https://just.systems/man/en/introduction.html) from your package manager or manually. It is available by default on all Universal Blue images.
+To use it, you must have installed [just](https://just.systems/man/en/introduction.html) from your package manager or manually.
 
 ## Environment Variables
 
@@ -446,7 +436,7 @@ Runs shfmt on all Bash scripts.
 
 ## Additional resources
 
-For additional driver support, ublue maintains a set of scripts and container images available at [ublue-akmod](https://github.com/ublue-os/akmods). These images include the necessary scripts to install multiple kernel drivers within the container (Nvidia, OpenRazer, Framework...). The documentation provides guidance on how to properly integrate these drivers into your container image.
+For additional driver support, prefer Fedora-supported firmware and userspace packages first. This image intentionally avoids NVIDIA, akmods, proprietary GPU driver repositories, and kernel module build logic.
 
 ## Community Examples
 

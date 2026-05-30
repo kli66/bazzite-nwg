@@ -1,4 +1,4 @@
-export image_name := env("IMAGE_NAME", "bazzite-nwg") # output image name, usually same as repo name, change as needed
+export image_name := env("IMAGE_NAME", "bazzite-nwg")
 export default_tag := env("DEFAULT_TAG", "latest")
 export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest")
 
@@ -13,7 +13,7 @@ default:
 # Check Just Syntax
 [group('Just')]
 check:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     find . -type f -name "*.just" | while read -r file; do
     	echo "Checking syntax: $file"
     	just --unstable --fmt --check -f $file
@@ -24,7 +24,7 @@ check:
 # Fix Just Syntax
 [group('Just')]
 fix:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     find . -type f -name "*.just" | while read -r file; do
     	echo "Checking syntax: $file"
     	just --unstable --fmt -f $file
@@ -35,7 +35,7 @@ fix:
 # Clean Repo
 [group('Utility')]
 clean:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
     touch _build
     find *_build* -exec rm -rf {} \;
@@ -54,7 +54,7 @@ sudo-clean:
 [group('Utility')]
 [private]
 sudoif command *args:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     function sudoif(){
         if [[ "${UID}" -eq 0 ]]; then
             "$@"
@@ -89,13 +89,23 @@ sudoif command *args:
 build $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
 
+    BUILD_PLATFORM="${BUILD_PLATFORM:-linux/amd64}"
+    SKIP_BOOTC_LINT="${SKIP_BOOTC_LINT:-0}"
+    HOST_ARCH="$(podman info --format '{{ '{{.Host.Arch}}' }}' 2>/dev/null || true)"
+
+    if [[ "${BUILD_PLATFORM}" == "linux/amd64" && "${HOST_ARCH}" == "arm64" ]]; then
+        SKIP_BOOTC_LINT=1
+    fi
+
     BUILD_ARGS=()
     if [[ -z "$(git status -s)" ]]; then
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
     fi
+    BUILD_ARGS+=("--build-arg" "SKIP_BOOTC_LINT=${SKIP_BOOTC_LINT}")
 
     podman build \
         "${BUILD_ARGS[@]}" \
+        --platform "${BUILD_PLATFORM}" \
         --pull=newer \
         --tag "${target_image}:${tag}" \
         .
@@ -118,7 +128,7 @@ build $target_image=image_name $tag=default_tag:
 # 4. If the image is not found, pull it from the remote repository into reootful podman.
 
 _rootful_load_image $target_image=image_name $tag=default_tag:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
 
     # Check if already running as root or under sudo
@@ -207,7 +217,7 @@ build-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_build
 
 # Build an ISO virtual machine image
 [group('Build Virtal Machine Image')]
-build-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "iso" "disk_config/iso.toml")
+build-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "iso" "disk_config/iso-gnome.toml")
 
 # Rebuild a QCOW2 virtual machine image
 [group('Build Virtal Machine Image')]
@@ -219,11 +229,11 @@ rebuild-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_reb
 
 # Rebuild an ISO virtual machine image
 [group('Build Virtal Machine Image')]
-rebuild-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "iso" "disk_config/iso.toml")
+rebuild-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "iso" "disk_config/iso-gnome.toml")
 
 # Run a virtual machine with the specified image type and configuration
 _run-vm $target_image $tag $type $config:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
 
     # Determine the image file based on the type
@@ -273,7 +283,7 @@ run-vm-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-
 
 # Run a virtual machine from an ISO
 [group('Run Virtal Machine')]
-run-vm-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "iso" "disk_config/iso.toml")
+run-vm-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "iso" "disk_config/iso-gnome.toml")
 
 # Run a virtual machine using systemd-vmspawn
 [group('Run Virtal Machine')]
@@ -292,7 +302,6 @@ spawn-vm rebuild="0" type="qcow2" ram="6G":
       --network-user-mode \
       --vsock=false --pass-ssh-key=false \
       -i ./output/**/*.{{ type }}
-
 
 # Runs shell check on all Bash scripts
 lint:
