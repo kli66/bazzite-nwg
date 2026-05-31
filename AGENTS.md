@@ -217,7 +217,7 @@ If these files are added later, update this document and treat those rules as au
 
 ## Known Gaps / Maintenance Notes
 
-- `build-disk.yml` references `./disk_config/iso.toml`, but repo currently has
-  `disk_config/iso-kde.toml` and `disk_config/iso-gnome.toml`.
+- ISO builds use `disk_config/iso-gnome.toml`; keep `Justfile`, README, and
+  `.github/workflows/build-disk.yml` aligned with that config path.
 - Keep AGENTS.md in sync when adding new tooling, tests, or language code.
 - If a test framework is introduced, add both full-suite and single-test commands.
