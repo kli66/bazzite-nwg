@@ -115,5 +115,3 @@ rm -f /tmp/*.rpm
 
 # Keep image cache clean.
 dnf5 clean all
-
-systemctl enable podman.socket
