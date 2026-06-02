@@ -1,6 +1,6 @@
 # bazzite-nwg
 
-A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Aurora](https://github.com/ublue-os/aurora) (stable) with the [niri](https://github.com/niri-wm/niri) Wayland compositor and Noctalia Shell added on top.
+A custom [bootc](https://github.com/bootc-dev/bootc) OCI image based on [Fedora Kinoite](https://fedoraproject.org/atomic-desktops/kinoite/) 44 with the [niri](https://github.com/niri-wm/niri) Wayland compositor and Noctalia Shell added on top.
 
 ## Installation
 
@@ -10,7 +10,7 @@ From any running bootc system, switch to this image with:
 sudo bootc switch ghcr.io/<your-github-username>/bazzite-nwg:latest
 ```
 
-Then reboot. The KDE Plasma session from Aurora remains available alongside Niri.
+Then reboot. The KDE Plasma session from Fedora Kinoite remains available alongside Niri.
 
 ## First Login
 
