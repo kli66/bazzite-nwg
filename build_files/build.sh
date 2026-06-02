@@ -9,47 +9,53 @@ set -ouex pipefail
 # List of rpmfusion packages can be found here:
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
 
+# Detect Fedora version for COPR repo targeting
+source /etc/os-release
+
+# Install common daily-driver media codecs for browser and mpv playback.
+dnf5 group install -y multimedia
+
 # this installs packages from fedora repos
 dnf5 install -y \
-    tmux \
-    neovim \
-    ripgrep \
-    fd-find \
-    git-core \
-    just \
-    fzf \
-    jq \
-    yq \
-    bat \
-    bash-completion \
-    openssh-clients \
-    rsync \
-    unzip \
-    p7zip \
-    curl \
-    wget \
-    podman \
-    buildah \
-    skopeo \
-    distrobox \
-    gcc \
-    gcc-c++ \
-    make \
-    cmake \
-    pkgconf-pkg-config \
-    clang \
-    lld \
-    llvm \
-    clang-tools-extra \
-    fcitx5 \
-    fcitx5-rime \
-    fcitx5-chinese-addons \
-    fcitx5-configtool \
-    fcitx5-gtk \
-    fcitx5-qt \
-    fcitx5-qt6 \
-    librime-lua \
-    wdisplays
+	tmux \
+	neovim \
+	ripgrep \
+	fd-find \
+	git-core \
+	just \
+	fzf \
+	jq \
+	yq \
+	bat \
+	bash-completion \
+	openssh-clients \
+	rsync \
+	unzip \
+	p7zip \
+	curl \
+	wget \
+	podman \
+	buildah \
+	skopeo \
+	distrobox \
+	gcc \
+	gcc-c++ \
+	make \
+	cmake \
+	pkgconf-pkg-config \
+	clang \
+	lld \
+	llvm \
+	clang-tools-extra \
+	fcitx5 \
+	fcitx5-rime \
+	fcitx5-chinese-addons \
+	fcitx5-configtool \
+	fcitx5-gtk \
+	fcitx5-qt \
+	fcitx5-qt6 \
+	librime-lua \
+	wdisplays
 
 # Use a COPR Example:
 #
@@ -59,8 +65,6 @@ dnf5 install -y \
 # dnf5 -y copr disable ublue-os/staging
 
 ### Niri + noctalia-shell install
-# Detect Fedora version for COPR repo targeting
-source /etc/os-release
 
 # Enable required COPRs
 dnf5 -y copr enable tofik/nwg-shell
@@ -69,8 +73,8 @@ dnf5 -y copr enable tofik/nwg-shell
 # dnf5 -y copr enable mochaa/gtk-session-lock
 
 # Enable Ghostty COPR repository for this Fedora release
-curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedora-${VERSION_ID}/scottames-ghostty-fedora-${VERSION_ID}.repo" \
-    | tee /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo > /dev/null
+curl -fsSL "https://copr.fedorainfracloud.org/coprs/scottames/ghostty/repo/fedora-${VERSION_ID}/scottames-ghostty-fedora-${VERSION_ID}.repo" |
+	tee /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo >/dev/null
 
 # Install Ghostty from COPR
 dnf5 install -y ghostty
@@ -99,8 +103,8 @@ sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/terra*.repo
 
 # Install Clash Verge Rev (latest release)
 ## Dynamically resolve the download URL for the latest x86_64 RPM
-CLASH_VERGE_URL=$(curl -s https://api.github.com/repos/clash-verge-rev/clash-verge-rev/releases/latest \
-  | jq -r '.assets[] | select(.name | endswith(".x86_64.rpm")) | .browser_download_url')
+CLASH_VERGE_URL=$(curl -s https://api.github.com/repos/clash-verge-rev/clash-verge-rev/releases/latest |
+	jq -r '.assets[] | select(.name | endswith(".x86_64.rpm")) | .browser_download_url')
 ## Download and install
 curl -L -o /tmp/clash-verge-rev.rpm "$CLASH_VERGE_URL"
 dnf5 install -y /tmp/clash-verge-rev.rpm
