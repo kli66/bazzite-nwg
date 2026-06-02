@@ -1,4 +1,4 @@
-export image_name := env("IMAGE_NAME", "bazzite-nwg") # output image name, usually same as repo name, change as needed
+export image_name := env("IMAGE_NAME", "bazzite-nwg")
 export default_tag := env("DEFAULT_TAG", "latest")
 export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest")
 
@@ -13,7 +13,7 @@ default:
 # Check Just Syntax
 [group('Just')]
 check:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     find . -type f -name "*.just" | while read -r file; do
     	echo "Checking syntax: $file"
     	just --unstable --fmt --check -f $file
@@ -24,7 +24,7 @@ check:
 # Fix Just Syntax
 [group('Just')]
 fix:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     find . -type f -name "*.just" | while read -r file; do
     	echo "Checking syntax: $file"
     	just --unstable --fmt -f $file
@@ -35,7 +35,7 @@ fix:
 # Clean Repo
 [group('Utility')]
 clean:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
     touch _build
     find *_build* -exec rm -rf {} \;
@@ -54,7 +54,7 @@ sudo-clean:
 [group('Utility')]
 [private]
 sudoif command *args:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     function sudoif(){
         if [[ "${UID}" -eq 0 ]]; then
             "$@"
@@ -89,6 +89,8 @@ sudoif command *args:
 build $target_image=image_name $tag=default_tag:
     #!/usr/bin/env bash
 
+    BUILD_PLATFORM="${BUILD_PLATFORM:-linux/amd64}"
+
     BUILD_ARGS=()
     if [[ -z "$(git status -s)" ]]; then
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
@@ -96,6 +98,7 @@ build $target_image=image_name $tag=default_tag:
 
     podman build \
         "${BUILD_ARGS[@]}" \
+        --platform "${BUILD_PLATFORM}" \
         --pull=newer \
         --tag "${target_image}:${tag}" \
         .
@@ -118,12 +121,17 @@ build $target_image=image_name $tag=default_tag:
 # 4. If the image is not found, pull it from the remote repository into reootful podman.
 
 _rootful_load_image $target_image=image_name $tag=default_tag:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
 
     # Check if already running as root or under sudo
     if [[ -n "${SUDO_USER:-}" || "${UID}" -eq "0" ]]; then
         echo "Already root or running under sudo, no need to load image from user podman."
+        exit 0
+    fi
+
+    if [[ "$(podman info --format '{{ '{{.Host.Security.Rootless}}' }}')" == "false" ]]; then
+        echo "Active podman connection is already rootful, no need to load image from user podman."
         exit 0
     fi
 
@@ -133,11 +141,11 @@ _rootful_load_image $target_image=image_name $tag=default_tag:
     return_code=$?
     set -e
 
-    USER_IMG_ID=$(podman images --filter reference="${target_image}:${tag}" --format "'{{ '{{.ID}}' }}'")
+    USER_IMG_ID=$(podman images --filter reference="${target_image}:${tag}" --format "{{ '{{.ID}}' }}")
 
     if [[ $return_code -eq 0 ]]; then
         # If the image is found, load it into rootful podman
-        ID=$(just sudoif podman images --filter reference="${target_image}:${tag}" --format "'{{ '{{.ID}}' }}'")
+        ID=$(just sudoif podman images --filter reference="${target_image}:${tag}" --format "{{ '{{.ID}}' }}")
         if [[ "$ID" != "$USER_IMG_ID" ]]; then
             # If the image ID is not found or different from user, copy the image from user podman to root podman
             COPYTMP=$(mktemp -p "${PWD}" -d -t _build_podman_scp.XXXXXXXXXX)
@@ -167,8 +175,12 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
     args+="--rootfs=btrfs"
 
     BUILDTMP=$(mktemp -p "${PWD}" -d -t _build-bib.XXXXXXXXXX)
+    PODMAN_CMD=(podman)
+    if [[ "$(podman info --format '{{ '{{.Host.Security.Rootless}}' }}')" == "true" && "${UID}" -ne 0 ]]; then
+        PODMAN_CMD=(sudo podman)
+    fi
 
-    sudo podman run \
+    "${PODMAN_CMD[@]}" run \
       --rm \
       -it \
       --privileged \
@@ -185,7 +197,9 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
     mkdir -p output
     sudo mv -f $BUILDTMP/* output/
     sudo rmdir $BUILDTMP
-    sudo chown -R $USER:$USER output/
+    owner_uid="${SUDO_UID:-$(id -u)}"
+    owner_gid="${SUDO_GID:-$(id -g)}"
+    sudo chown -R "${owner_uid}:${owner_gid}" output/
 
 # Podman builds the image from the Containerfile and creates a bootable image
 # Parameters:
@@ -223,7 +237,7 @@ rebuild-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_reb
 
 # Run a virtual machine with the specified image type and configuration
 _run-vm $target_image $tag $type $config:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     set -eoux pipefail
 
     # Determine the image file based on the type
@@ -292,7 +306,6 @@ spawn-vm rebuild="0" type="qcow2" ram="6G":
       --network-user-mode \
       --vsock=false --pass-ssh-key=false \
       -i ./output/**/*.{{ type }}
-
 
 # Runs shell check on all Bash scripts
 lint:
